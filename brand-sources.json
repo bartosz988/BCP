@@ -1,0 +1,17 @@
+{
+  "source": "BCP_Polska_Ksiega_znaku.pdf, wersja 1.1; BCP Polska Design System/tokens/colors.css",
+  "rules": {
+    "logo": "Original SVG, proportional sizing, minimum 64px height and clear space; product name separate",
+    "palette": "Navy #163556, white, neutral and blue supporting colors; #C400B6 for primary next-step CTA",
+    "type": "Poppins 400/500/600 self-hosted; Georgia for introductory prose",
+    "surfaces": "4px radius, thin border, no resting shadow"
+  },
+  "font_source": "https://github.com/google/fonts/tree/main/ofl/poppins",
+  "font_license": "dist/assets/fonts/OFL.txt",
+  "logo_sha256": {
+    "BCP_Polska_logo.svg": "22b9a1fa76887077253121bbac8b03f9c0b47060e51a3e1f2ae26e3644ce6dc5",
+    "BCP_Polska_sygnet.svg": "72af86bb6e26f4e298a55961f1c770f252a0206fe80dba32544bbb28409ed3f3",
+    "BCP_Polska_logo_inverse.svg": "a65a9759138aeddf63e86b636a6b81391b824dfabeb0440326688cc73bc38636",
+    "BCP_Polska_logo_broker.svg": "c547e09d85a6f7e7cdfbdb8036c98ba9eadcaf9ac3eae69338d3ae7d3cc1c539"
+  }
+}

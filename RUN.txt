@@ -1,0 +1,18 @@
+iBCP — demonstrator Auto Demo, 02.11.2026
+
+Uruchomienie lokalne: python3 -m http.server 8787 --bind 127.0.0.1 --directory dist
+Następnie otwórz http://127.0.0.1:8787
+
+Kod firmy: AUTO200
+Kod weryfikacyjny: 246810
+Używaj wyłącznie fikcyjnych danych i e-maili w domenie example.com.
+
+Testy logiki: node --test core.test.mjs
+Dokumentacja: dist/architecture.html
+
+Demonstrator jest statyczny i zapisuje postęp w przeglądarce.
+Nie zawiera produkcyjnego backendu, rzeczywistej autoryzacji/MFA,
+integracji z TU ani wysyłania e-maili. Warianty i dokumenty są fikcyjne.
+Ról demo nie wolno traktować jako zabezpieczenia dostępu do danych.
+Pełna architektura docelowa, model danych i pytania przed pilotem
+znajdują się w architecture.html oraz research.json.

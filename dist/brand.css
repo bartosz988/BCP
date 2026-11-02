@@ -1,0 +1,32 @@
+@font-face{font-family:'Poppins';font-style:normal;font-weight:400;font-display:swap;src:url('./assets/fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:500;font-display:swap;src:url('./assets/fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url('./assets/fonts/Poppins-SemiBold.ttf') format('truetype')}
+:root{
+/* ---- Brand navy / mosaic blues (sampled from the logo mosaic) ---- */
+--blue-950:#0e2440;--blue-900:#163556;--blue-800:#1f4466;--blue-700:#2c6599;--blue-600:#376289;--blue-400:#6c91b2;--blue-300:#89adce;--blue-200:#a9d0ed;--blue-100:#d6e7f5;--blue-50:#f1f6fb;
+/* ---- Signal green (the inward chevron) ---- */
+--green-400:#40ff04;--green-500:#0ff90e;--green-600:#01ea22;--green-700:#079c1a;--green-800:#046612;--green-50:#e8ffe9;
+/* ---- Signal magenta (the outward chevron) ---- */
+--magenta-400:#ff25f0;--magenta-500:#f200e1;--magenta-600:#c400b6;--magenta-700:#8e0084;--magenta-50:#ffeafb;
+/* ---- Neutrals ---- */
+--neutral-0:#ffffff;--neutral-50:#f7f8fa;--neutral-100:#eceff3;--neutral-200:#d9dde4;--neutral-300:#bcc3cd;--neutral-400:#9aa3b0;--neutral-500:#6d7683;--neutral-600:#4d545f;--neutral-700:#343a44;--neutral-800:#21262e;--neutral-900:#14171c;
+/* ---- Derived alert red (brand supplies no red; documented in readme) ---- */
+--red-500:#c2263c;--red-600:#9c1b2e;--red-50:#fdecef;
+
+/* ---- Semantic aliases ---- */
+--brand-primary:var(--blue-900);--brand-primary-hover:var(--blue-800);--brand-primary-active:var(--blue-950);
+--brand-accent:var(--green-500);--brand-accent-ink:var(--green-800);
+--brand-attention:var(--magenta-500);--brand-attention-ink:var(--magenta-600);
+
+--text-heading:var(--blue-900);--text-body:var(--neutral-700);--text-muted:var(--neutral-500);--text-subtle:var(--neutral-400);--text-on-dark:var(--neutral-0);--text-on-dark-muted:var(--blue-200);--text-link:var(--blue-700);--text-link-hover:var(--magenta-600);--text-inverse-link:var(--green-400);
+
+--surface-page:var(--neutral-0);--surface-subtle:var(--neutral-50);--surface-card:var(--neutral-0);--surface-sunken:var(--blue-50);--surface-inverse:var(--blue-900);--surface-inverse-deep:var(--blue-950);--surface-accent-wash:var(--green-50);--surface-attention-wash:var(--magenta-50);
+
+--border-subtle:var(--neutral-200);--border-default:var(--neutral-300);--border-strong:var(--blue-900);--border-inverse:rgba(169,208,237,.28);--border-focus:var(--blue-700);
+
+--status-positive:var(--green-700);--status-positive-surface:var(--green-50);--status-critical:var(--red-500);--status-critical-surface:var(--red-50);--status-attention:var(--magenta-600);--status-attention-surface:var(--magenta-50);--status-info:var(--blue-700);--status-info-surface:var(--blue-50);
+
+--focus-ring:0 0 0 3px rgba(44,101,153,.34);
+}
+
+:root{--font-ui:'Poppins',Arial,'Helvetica Neue',sans-serif;--font-serif:Georgia,'Times New Roman',serif;--radius:4px}

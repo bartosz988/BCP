@@ -1,0 +1,176 @@
+{
+  "title": "iBCP — architektura i przygotowanie pilota",
+  "verified_at": "2026-11-02",
+  "document_status": "Propozycja architektury. Nie jest to potwierdzenie gotowości produkcyjnej ani akceptacji procesu przez TU.",
+  "decision": {
+    "stack": "Next.js + TypeScript, PostgreSQL / Supabase Pro, Render",
+    "region": "Supabase: konkretny region eu-central-1 (Frankfurt). Serwer Next.js: Render Frankfurt.",
+    "why": "Relacyjna baza pasuje do wersjonowanych deklaracji, zmian, płatników i rozliczeń. Standardowy kod oraz PostgreSQL ułatwiają testowanie i zmianę dostawcy. Usługi zarządzane ograniczają obsługę infrastruktury, pozostawiając pełną kontrolę nad regułami aplikacji.",
+    "tradeoff": "Więcej pracy programistycznej na początku niż w generatorze no-code. Nadal potrzebne są aktualizacje aplikacji, monitoring, odtwarzanie danych i przeglądy bezpieczeństwa; usługa zarządzana nie wykonuje ich za aplikację.",
+    "cost": "75 USD/mies. jako baza przyjętej konfiguracji: Supabase Pro 25 USD + Render workspace Pro 25 USD + serwer 1 CPU / 2 GB 25 USD. To założenie startowe do weryfikacji testem wydajności, nie gwarancja pojemności ani pełny koszt utrzymania.",
+    "cost_exclusions": "Poza kwotą: podatki, domena, e-mail/SMS, staging, przekroczenia limitów, zadania w tle, dodatkowe przechowywanie i logi, usługi bezpieczeństwa, prace utrzymaniowe. Supabase PITR jest osobnym dodatkiem od 100 USD/mies.; wybór RPO/RTO wymaga decyzji przed pilotem.",
+    "demo_boundary": "Bieżący demonstrator używa HTML/CSS/JavaScript i fikcyjnych danych w przeglądarce. Sites służy wyłącznie pokazowi tego demo; nie jest wybranym hostingiem danych produkcyjnych iBCP. Nie zamówiono usług Supabase, Render ani innych płatnych planów.",
+    "residency_boundary": "Wskazanie Frankfurtu ustala planowany region serwera i głównych danych projektu. Przed pilotem trzeba potwierdzić lokalizację kopii, logów, poczty, wsparcia i wszystkich podprocesorów. Nie zakładamy, że sam wybór regionu spełnia wszystkie wymagania RODO.",
+    "sources": ["supabase-pricing", "supabase-regions", "render-pricing", "render-plans", "render-regions", "next-deploy"]
+  },
+  "options": [
+    {
+      "name": "Next.js + Supabase + Render",
+      "selected": true,
+      "cost": "75 USD/mies. w przyjętej konfiguracji; 32 USD to wyłącznie minimum pojedynczego środowiska z Hobby i najmniejszym serwerem, nie budżet pilota.",
+      "speed": "Średni nakład początkowy. Model danych, uprawnienia i eksporty powstają jawnie w kodzie.",
+      "maintenance": "Zarządzana baza i serwer; po stronie aplikacji testy, aktualizacje i konfiguracja.",
+      "data": "Konkretny region Supabase eu-central-1 i serwer Render Frankfurt. Przepływy pomocnicze do potwierdzenia.",
+      "verdict": "Wybór do dalszej implementacji. Najlepszy z ocenianych kompromis między kontrolą, kosztem i możliwością rozwoju iBCP.",
+      "sources": ["supabase-pricing", "supabase-regions", "render-pricing", "render-plans", "render-regions", "next-deploy"]
+    },
+    {
+      "name": "Base44",
+      "selected": false,
+      "cost": "Builder: 40 USD/mies. przy płatności rocznej; Enterprise: wycena indywidualna. Cena Buildera nie jest ofertą dla wymagań produkcyjnych iBCP.",
+      "speed": "Niski próg zbudowania ekranów i podstawowego procesu. Ocena szybkości to nasz wniosek, nie gwarancja terminu.",
+      "maintenance": "Zintegrowana platforma. Szczegółowe reguły dostępu, eksporty i zachowanie po zmianach trzeba zweryfikować na działającej aplikacji.",
+      "data": "Dokumentacja rozróżnia przechowywanie w UE od przetwarzania, które może odbywać się w innym regionie. Automatyczne wyłączenie danych z treningu AI opisano dla Enterprise. Dostępność rezydencji zależy też od planu i daty utworzenia workspace.",
+      "verdict": "Opcja demonstratora. Do produkcji wymaga oferty i pisemnego potwierdzenia przepływów; nie wybieramy jej na podstawie samego hasła o zgodności z GDPR.",
+      "sources": ["base44-pricing", "base44-privacy"]
+    },
+    {
+      "name": "Bubble",
+      "selected": false,
+      "cost": "Web Starter: 32 USD/mies. przy płatności rocznej. Wybór lokalizacji hostingu: Enterprise, wycena indywidualna. Dodatkowo zużycie workload i dodatki.",
+      "speed": "Szybkie formularze i przebiegi w edytorze. Złożone reguły rozliczeń nadal wymagają implementacji i testów.",
+      "maintenance": "Infrastruktura po stronie dostawcy; logika i zależności od platformy wymagają opieki.",
+      "data": "Enterprise oferuje dedykowaną instancję m.in. we Frankfurcie. Dokumentacja wymienia także globalny CDN — zakres przesyłanych danych trzeba ograniczyć i sprawdzić.",
+      "verdict": "Możliwa alternatywa no-code, lecz koszt i warunki Enterprise pozostają nieustalone. Nie jest pierwszym wyborem do tego modelu rozliczeń.",
+      "sources": ["bubble-pricing", "bubble-regions"]
+    },
+    {
+      "name": "Next.js + Azure App Service + Azure PostgreSQL",
+      "selected": false,
+      "cost": "Wycena z kalkulatora dla konkretnego regionu, compute, dysku, kopii, ruchu i uwierzytelniania. Publicznie odczytana tabela nie zwróciła ceny dla wybranej konfiguracji — nie podajemy kwoty z pamięci.",
+      "speed": "Większy nakład konfiguracji środowisk, tożsamości i sieci. Kod aplikacji nadal jest przenośny.",
+      "maintenance": "Zarządzane usługi, rozbudowane możliwości konfiguracji; większa liczba elementów do utrzymania.",
+      "data": "Azure ma regiony w UE, w tym Poland Central. Dostępność każdej wymaganej usługi i lokalizację kopii trzeba potwierdzić dla wybranego regionu.",
+      "verdict": "Sensowna opcja przy wymaganiach konkretnego Klienta dotyczących Azure lub rozbudowanej izolacji sieciowej; na start większa złożoność niż wybrany wariant.",
+      "sources": ["azure-app", "azure-postgres", "azure-regions"]
+    }
+  ],
+  "architecture": [
+    {"layer":"Interfejs","description":"Next.js / TypeScript: pracownik, kadry, opiekun i administrator. Zatwierdzone treści programu oddzielone od kodu; formularze i porównania korzystają z jednej wersji danych."},
+    {"layer":"Logowanie","description":"Supabase Auth: e-mail, hasło lub uzgodniona metoda logowania i drugi składnik TOTP. Sprawdzenie poziomu MFA również po stronie serwera i polityk dostępu. Kod firmy identyfikuje program; sam w sobie nie potwierdza uprawnienia do ubezpieczenia."},
+    {"layer":"Logika aplikacji","description":"Serwer Next.js w Render Frankfurt: walidacja, reguły dat, transakcje, generowanie dokumentów i eksportów. Token użytkownika i zakres pracodawcy weryfikowane przy każdym żądaniu."},
+    {"layer":"Dane","description":"PostgreSQL / Supabase eu-central-1. RLS oraz więzy relacyjne z employer_id. Wrażliwe identyfikatory w wydzielonym schemacie; klucze szyfrowania poza tabelami z danymi."},
+    {"layer":"Dokumenty","description":"Prywatny magazyn plików, dostęp przez krótkotrwałe podpisane adresy, wersje i skróty treści. Brak danych osobowych w nazwach plików i adresach URL."},
+    {"layer":"Integracje","description":"Oddzielny adapter dla formatu każdego TU i systemu płacowego. Na start zatwierdzony eksport plikowy; API dopiero po potwierdzeniu dostępności. Kolejka z ponowieniami i kluczem idempotencji."},
+    {"layer":"Audyt","description":"Dziennik operacji z identyfikatorem aktora, pracodawcy, rekordu, czasu, działania i wyniku. Chroniony przed zmianą przez zwykłe role. Bez pełnego PESEL, ankiet medycznych, tokenów i haseł."}
+  ],
+  "model_conventions": [
+    "Identyfikatory UUID, pieniądze w groszach jako integer, waluta jawna. Znaczniki zdarzeń w timestamptz; daty skuteczności typu date wyliczane według strefy Europe/Warsaw.",
+    "Każda encja danych Klienta ma employer_id, id oraz created_at; wersjonowane rekordy dodatkowo version i valid_from/valid_to. Klucze obce zawierają employer_id, aby uniemożliwić powiązanie rekordów różnych pracodawców.",
+    "Konto logowania może mieć uprawnienia w kilku programach, ale dane osoby i uczestnictwo pozostają przypisane do właściwego pracodawcy. Płatnik nie otrzymuje automatycznie dostępu do danych pełnoletniego członka rodziny.",
+    "Reguły wieku, karencji, terminów i skutków zaległości muszą pochodzić z zatwierdzonej wersji programu. Przykłady w demo nie są warunkami PZU Życie.",
+    "Kwoty i dokumenty deklaracji są utrwalane w chwili złożenia. Późniejsza zmiana konfiguracji programu nie przepisuje historii.",
+    "Status złożonej deklaracji, status technicznej transmisji i status ochrony są osobnymi polami. Samo zapisanie formularza lub wysłanie pliku nie potwierdza objęcia ochroną."
+  ],
+  "entities": [
+    {"name":"Pracodawca","key":"employers","fields":"id, nazwa, NIP, branding, timezone, liczba_uprawnionych, stan_na_dzień","relations":"1:N Program; 1:N Pracownik; 1:N Przypisanie roli","purpose":"Granica danych Klienta i mianownik raportu partycypacji."},
+    {"name":"Użytkownik i przypisanie roli","key":"users / memberships","fields":"auth_user_id, employer_id, program_id?, rola, status, valid_from, valid_to","relations":"Użytkownik N:M Pracodawca / Program przez memberships","purpose":"Pracownik, kadry, opiekun przypisanych programów, administrator; MFA i zakres dostępu."},
+    {"name":"TU","key":"insurers","fields":"id, nazwa, kanał_wymiany, wersja_specyfikacji, kontakt_techniczny","relations":"1:N Program; 1:N format eksportu","purpose":"Konfiguracja integracji; nie przechowuje domyślnych domniemanych warunków TU."},
+    {"name":"Program i wersja programu","key":"programs / program_versions","fields":"id, employer_id, insurer_id, numer_umowy, version, valid_from/to, tryb_płatności, reguły, zatwierdzenie_TU_ref","relations":"Pracodawca 1:N Program; Program 1:N Wersja; Wersja 1:N Wariant","purpose":"Wersje stawek, kwalifikacji, karencji, terminów i dokumentów obowiązujących w danym okresie."},
+    {"name":"Wariant","key":"variants","fields":"id, program_version_id, kod, nazwa, składka_grosze, PLN, zakres, wersja_treści","relations":"N:1 Wersja programu; 1:N Uczestnictwo","purpose":"Porównanie wariantów zgodne z zatwierdzoną treścią i zapis ceny w deklaracji."},
+    {"name":"Osoba / ubezpieczony","key":"persons","fields":"id, employer_id, auth_user_id?, imię, nazwisko, data_urodzenia, private_data_ref","relations":"1:0..1 Pracownik; N:M Pracownik przez relacje rodzinne; 1:N Uczestnictwo","purpose":"Tożsamość ubezpieczonego oddzielona od konta, zatrudnienia i płatnika."},
+    {"name":"Dane identyfikacyjne","key":"private.person_identifiers","fields":"person_id, employer_id, PESEL_ciphertext?, typ_innego_dokumentu?, ciphertext, key_version","relations":"1:1 Osoba; dostęp tylko do uzgodnionych operacji","purpose":"Minimalny wymagany identyfikator; w demonstratorze wyłącznie dane fikcyjne."},
+    {"name":"Pracownik","key":"employees","fields":"id, person_id, employer_id, numer_kadrowy, zatrudnienie_od/do, kwalifikacja_status","relations":"N:1 Pracodawca; 1:N Relacja rodzinna","purpose":"Powiązanie z pracodawcą; uprawnienie do programu weryfikowane niezależnie od kodu firmy."},
+    {"name":"Członek rodziny","key":"family_links","fields":"id, employee_id, family_person_id, relacja, valid_from/to, eligibility_status","relations":"Pracownik 1:N family_links; Osoba 1:N family_links","purpose":"Pełnoletni członek rodziny przystępuje na własnym koncie i składa własne oświadczenia."},
+    {"name":"Uczestnictwo / ochrona","key":"enrollments","fields":"id, person_id, sponsoring_employee_id?, program_id, variant_id, status_ochrony, requested_from, confirmed_from/to","relations":"Osoba 1:N Uczestnictwo; 1:N Deklaracja, Zmiana i przypisanie płatnika","purpose":"Chronologia ochrony. Aktywność wynika z uzgodnionego procesu i dowodu od TU, nie z kliknięcia w formularzu."},
+    {"name":"Płatnik","key":"payers","fields":"id, employer_id, typ: osoba/pracodawca, person_id? lub employer_entity_id?, ref_rozliczenia","relations":"Płatnik N:M Uczestnictwo przez payer_assignments","purpose":"Pracownik może finansować siebie i rodzinę; model dopuszcza dopłatę pracodawcy."},
+    {"name":"Przypisanie płatnika","key":"payer_assignments","fields":"payer_id, enrollment_id, składnik, kwota_grosze lub udział, valid_from/to, tryb, zgoda_ref","relations":"N:1 Płatnik; N:1 Uczestnictwo","purpose":"Relacja wiele-do-wielu z udziałem i okresem. Walidacja sumy finansowania oraz braku podwójnych naliczeń."},
+    {"name":"Uposażony","key":"beneficiaries","fields":"id, enrollment_id, declaration_version_id, dane_minimalne_ref, udział_procent, valid_from/to","relations":"Uczestnictwo 1:N Uposażony","purpose":"Wersjonowany zestaw uposażonych; walidacja udziałów zgodnie z wymaganiami TU."},
+    {"name":"Deklaracja","key":"declarations","fields":"id, enrollment_id, revision, status, snapshot_zaszyfrowany, content_hash, submitted_at, actor_id, evidence_ref, poprzednia_wersja_id?","relations":"Uczestnictwo 1:N Deklaracja; Deklaracja 1:N Potwierdzenie TU","purpose":"Niezmienny zapis złożonej treści, dokumentów i dowodu czynności; korekta tworzy następną wersję."},
+    {"name":"Zmiana","key":"changes","fields":"id, enrollment_id, typ, przed, po, requested_at, requested_effective_date, confirmed_effective_date, status, supersedes_id?","relations":"N:1 Uczestnictwo; N:1 Deklaracja?; 1:N Potwierdzenie TU","purpose":"Zmiana wariantu, danych, płatnika, uposażonych albo rezygnacja z pełną chronologią."},
+    {"name":"Należność, płatność i rozliczenie","key":"charges / payments / allocations","fields":"okres, enrollment_id, payer_id, kwota_grosze, external_payment_id, received_at, status, allocation_amount, reversal_of?","relations":"Należność N:M Płatność przez allocations","purpose":"Oddziela obowiązek zapłaty od wpływu; obsługuje niedopłatę, nadpłatę, korektę i kilka osób w jednym przelewie."},
+    {"name":"Eksport i pozycja eksportu","key":"exports / export_items","fields":"id, employer_id, typ: TU/płace, okres, format_version, status, content_hash, generated_at, sent_at?, idempotency_key; item_id, record_ref, snapshot","relations":"Eksport 1:N Pozycja; Pozycja wskazuje Deklarację/Zmianę/Należność","purpose":"Powtarzalny plik z zamrożonymi pozycjami; ponowienie nie powoduje duplikacji. Korekta ma własny identyfikator."},
+    {"name":"Potwierdzenie TU","key":"insurer_acknowledgements","fields":"id, insurer_id, export_id?, declaration_id?, change_id?, external_ref, status: przyjęte/odrzucone/częściowe, reason_code, received_at, effective_date, evidence_hash","relations":"N:1 TU; potwierdzenie na poziomie pliku i konkretnej osoby","purpose":"Źródło wyniku przetwarzania i dat ochrony. Potwierdzenie transmisji nie zastępuje wyniku dla osoby."},
+    {"name":"Zaproszenie","key":"invitations","fields":"id, employer_id, program_id, sponsor_id?, email, token_hash, expires_at, accepted_at, used_at","relations":"Pracodawca/Pracownik 1:N Zaproszenie","purpose":"Jednorazowy link z ograniczonym zakresem; brak rzeczywistego wysyłania w demonstratorze."},
+    {"name":"Dokument i potwierdzenie zapoznania","key":"documents / acknowledgements","fields":"type, program_version_id, version, language, file_ref, hash, valid_from/to; actor_id, declaration_id, document_version_id, acknowledged_at","relations":"Wersja programu 1:N Dokument; Deklaracja N:M wersja dokumentu","purpose":"OWU, karta produktu i informacje brokera jako wersjonowane dokumenty; zapis, która treść była prezentowana."},
+    {"name":"Dziennik audytowy","key":"audit_events","fields":"id, employer_id, actor_id, action, entity_type/id, timestamp, result, correlation_id, metadata_bez_danych_wrażliwych","relations":"Odwołania do zdarzeń każdej encji","purpose":"Kontrola operacji i dostępu. Retencja oraz dostęp do logów są oddzielnie określone."},
+    {"name":"Zadanie wyjątku i kolejka powiadomień","key":"exceptions / notification_outbox","fields":"entity_ref, reason_code, status, due_at, assigned_role, resolution_ref; channel, template_version, idempotency_key, delivery_status","relations":"Zdarzenie 1:N Zadanie/Powiadomienie","purpose":"Odrzucenia, rozbieżności i ponowienia z mierzalnym wynikiem; bez automatycznego obiecywania ochrony."}
+  ],
+  "relations": [
+    "Pracodawca → Program → Wersja programu → Wariant",
+    "Użytkownik ↔ Pracodawca / Program (przypisania ról)",
+    "Osoba → Pracownik → Członek rodziny → Osoba",
+    "Osoba → Uczestnictwo ← Wariant",
+    "Płatnik ↔ Uczestnictwo (udział i okres finansowania)",
+    "Uczestnictwo → Deklaracja / Zmiana → Pozycja eksportu → Eksport",
+    "Eksport / Deklaracja / Zmiana → Potwierdzenie TU → potwierdzony stan ochrony",
+    "Uczestnictwo → Należność ↔ Płatność (alokacje i korekty)"
+  ],
+  "access": [
+    {"role":"Pracownik","scope":"Własne dane, deklaracje, dokumenty i rozliczenia w swoim programie; zaproszenia rodziny. Zakres informacji o składce rodziny ograniczony do uprawnień płatnika."},
+    {"role":"Członek rodziny","scope":"Własne dane i deklaracje; brak dostępu do danych pracownika, pozostałej rodziny i innych Klientów."},
+    {"role":"Kadry","scope":"Własny pracodawca: identyfikator kadrowy, status, daty i kwoty wymagane do obsługi i płac. Domyślnie bez uposażonych i danych medycznych."},
+    {"role":"Opiekun BCP","scope":"Wyłącznie przypisane programy; obsługa deklaracji, eksporty i wyjątki w zatwierdzonym zakresie. Dostęp do pełnego identyfikatora tylko gdy potrzebny do operacji."},
+    {"role":"Administrator BCP","scope":"Konfiguracja programu i uprawnień. Rola techniczna nie daje automatycznie uprawnienia do odczytu pełnego PESEL lub danych zdrowotnych."}
+  ],
+  "security_rules": [
+    "Polityki RLS i autoryzacja serwera, a nie samo ukrywanie przycisków. Testy co najmniej dwóch pracodawców, prób podmiany identyfikatora i dostępu do eksportów.",
+    "Serwer wylicza employer_id z zatwierdzonego członkostwa; nie ufa wartości przesłanej przez przeglądarkę. Klucze administracyjne nigdy nie trafiają do klienta.",
+    "Jednorazowe linki, terminy ważności, limit prób oraz weryfikacja uprawnienia do programu po kodzie firmy. Wymuszenie drugiego składnika w operacjach z danymi.",
+    "Audyt zmian i istotnych odczytów, ograniczenie dostępu do logów, brak pełnego PESEL i danych zdrowotnych w logach/telemetrii. Ewentualne szczegóły zmiany w szyfrowanej historii z odrębnym dostępem.",
+    "Prywatne pliki, test odtworzenia bazy i dokumentów, określony RPO/RTO. Kopia bazy nie zastępuje kopii magazynu plików.",
+    "Domyślnie bez przechowywania danych o zdrowiu. Jeśli TU wymaga ankiety, najpierw sprawdzić możliwość bezpośredniego przekazania do TU. Ewentualny moduł medyczny wymaga osobnego przepływu, kluczy, dostępu i zatwierdzenia prawnego."
+  ],
+  "workflows": [
+    {"process":"Przystąpienie","system":"Walidacja uprawnienia, kompletności i wersji dokumentów; utrwalenie deklaracji; kolejka eksportu.","insurer":"Format przyjęcia i wynik dla osoby wraz z właściwą datą ochrony.","exception":"Odrzucenie lub brak wyniku tworzy zadanie; do tego czasu widoczny status oczekiwania."},
+    {"process":"Zmiana wariantu / rezygnacja","system":"Wyliczenie proponowanej daty według wersji reguł, zapis zmiany bez nadpisania historii.","insurer":"Potwierdzona data, ewentualne warunki zmiany i korekty składki.","exception":"Niezgodność dat lub kwot blokuje automatyczne zamknięcie zmiany."},
+    {"process":"Rozliczenie składek","system":"Naliczanie zobowiązań i porównanie z plikiem płacowym / informacją o wpłatach.","insurer":"Specyfikacja rozliczeń, identyfikatory i reguły dla zaległości.","exception":"Nieznany przelew, niedopłata i nadpłata wymagają dopasowania; sam brak danych nie oznacza braku zapłaty."},
+    {"process":"Eksport","system":"Zamrożenie okresu i pozycji, kontrola sum, numer wersji i skrót pliku.","insurer":"Wzorcowy plik, kanał przekazania, obsługa duplikatów, potwierdzenia częściowe.","exception":"Korekta jest nowym eksportem powiązanym z poprzednim; pobranie pliku nie jest wysłaniem do TU."}
+  ],
+  "questions_tu": [
+    "Czy TU akceptuje e-deklarację z iBCP dla konkretnego programu? Jaką treść, identyfikację, drugi składnik i zestaw dowodów czynności wymaga? Prosimy o pisemną akceptację scenariusza i przykładu deklaracji.",
+    "Jak potwierdzamy uprawnienie pracownika i członka rodziny? Jakie są reguły wieku, zatrudnienia, relacji rodzinnej, karencji i kwalifikacji? Jaki identyfikator stosujemy przy braku PESEL?",
+    "Kiedy dokładnie zaczyna i kończy się ochrona, jakie są terminy graniczne i strefa czasowa? Co dzieje się przy spóźnionym pliku, korekcie i zmianie wariantu?",
+    "Jakie dokumenty i oświadczenia mają być pokazane przed przystąpieniem? Jak TU zatwierdza opis wariantów w prostym języku i kolejne wersje treści?",
+    "Czy istnieje API, SFTP lub uzgodniony eksport? Potrzebujemy specyfikacji, słownika pól, przykładowych plików poprawnych i błędnych oraz sposobu potwierdzenia każdej pozycji.",
+    "Jak rozpoznawać duplikat, ponowienie, odrzucenie częściowe i wycofanie? Jaki identyfikator łączy deklarację, zmianę, eksport oraz wynik TU?",
+    "Kto jest płatnikiem i odbiorcą składki w pilocie? Jak obsłużyć rodzinę opłacaną przez pracownika, dopłatę pracodawcy oraz zgodę na potrącenie?",
+    "Jakie dane otrzymamy do uzgodnienia składek? Jak rozliczać niedopłatę, nadpłatę i zwrot oraz jaki jest ich zatwierdzony wpływ na ochronę?",
+    "Czy wymagane są odpowiedzi dotyczące zdrowia? Czy ankietę można skierować bezpośrednio do TU, zachowując w iBCP wyłącznie status i identyfikator?",
+    "Jakie są aktualne linki i procedury roszczeń oraz kontynuacji po odejściu z pracy? Które komunikaty i terminy można automatyzować?",
+    "Jaki jest scenariusz testów akceptacyjnych i jakie potwierdzenie kończy dopuszczenie iBCP do pilota?"
+  ],
+  "questions_legal": [
+    "Jakie role mają BCP, pracodawca, TU i dostawcy technologii w poszczególnych celach przetwarzania? Jakich umów i załączników potrzeba do tego konkretnego przepływu?",
+    "Jakie są podstawy przetwarzania i minimalny zakres danych pracownika, rodziny, płatnika i uposażonych? Które dane mogą zobaczyć kadry oraz płatnik rodzinny?",
+    "Czy proponowany zestaw dowodów identyfikacji i utrwalenia deklaracji spełnia wymagania formy dokumentowej oraz warunki TU? Jak udowodnić treść, autora, czas i wersję dokumentów?",
+    "Jak przedstawić obowiązki informacyjne i dokumenty brokera przed przystąpieniem? Jak udokumentować doręczenie i dostępność wymaganych treści?",
+    "Jakie okresy retencji przyjąć osobno dla szkiców, zaproszeń, deklaracji, rozliczeń, logów i kopii? Jak pogodzić żądanie usunięcia z obowiązkami archiwizacji?",
+    "Czy planowany zakres wymaga oceny skutków dla ochrony danych? Jakie dodatkowe warunki mają zastosowanie, jeśli TU wymaga danych zdrowotnych?",
+    "Jak ocenić DPA, podprocesorów, transfery i dostęp wsparcia w wybranym stacku? Czy uzgodniony wymóg hostingu w UE obejmuje kopie, logi, e-maile i wszystkie miejsca przetwarzania?",
+    "Jakie zasady mają obowiązywać przy zaproszeniu pełnoletniej rodziny, danych uposażonych, oświadczeniach o potrąceniu i wycofaniu deklaracji?",
+    "Jak skonfigurować logowanie, drugi składnik, odzyskiwanie dostępu i obsługę incydentu, aby odpowiadały ocenie ryzyka i zakresowi danych?"
+  ],
+  "scope": {
+    "demo": ["Auto Demo sp. z o.o., 200 pracowników; warianty 60 / 90 / 120 zł jako fikcyjne dane prezentacyjne.","Jeden tryb rozliczeń: potrącenie z wynagrodzenia. Ścieżka pracownika i podgląd kadr, lokalne stany oraz eksport demonstracyjny.","PZU Życie jest wskazaniem scenariusza. Żadne świadczenie, dokument, termin ani decyzja w demo nie jest potwierdzonym warunkiem lub ofertą PZU.","Przełączanie ról, logowanie, potwierdzenia TU i zaproszenia służą prezentacji. Brak rzeczywistych e-maili, płatności i akceptacji TU."],
+    "before_pilot": ["Zatwierdzone dokumenty oraz reguły jednego programu i sposobu rozliczeń; specyfikacje plików TU i systemu płacowego.","Rzeczywisty backend, uwierzytelnianie i MFA, polityki uprawnień, transakcyjne zapisy i dziennik audytowy.","Wdrożenie w uzgodnionych regionach, umowy, retencja, monitoring i test odtworzenia danych.","Testy całej ścieżki, odrzucenia TU, powtórnego eksportu, korekty, braku potwierdzenia oraz izolacji między dwoma pracodawcami."],
+    "open_decisions": ["Dokładny program i dokumentacja TU; sposób potwierdzania uprawnienia do programu.","Format i zakres eksportu do systemu płacowego Klienta.","Kanał danych o rozliczeniach i potwierdzeń TU; dopuszczalny czas oczekiwania.","Regiony wszystkich usług pomocniczych, retencja oraz docelowe RPO/RTO.","Zakres danych rodzinnych i identyfikatorów wymagany do rzeczywistej deklaracji."]
+  },
+  "sources": [
+    {"id":"supabase-pricing","title":"Supabase — cennik, compute, kopie i PITR","url":"https://supabase.com/pricing"},
+    {"id":"supabase-regions","title":"Supabase — wybór konkretnego regionu","url":"https://supabase.com/docs/guides/platform/regions"},
+    {"id":"render-pricing","title":"Render — ceny compute","url":"https://render.com/pricing"},
+    {"id":"render-plans","title":"Render — aktualne plany workspace","url":"https://render.com/docs/new-workspace-plans"},
+    {"id":"render-regions","title":"Render — regiony usług","url":"https://render.com/docs/regions"},
+    {"id":"next-deploy","title":"Next.js — wdrożenie jako serwer Node.js","url":"https://nextjs.org/docs/app/getting-started/deploying"},
+    {"id":"base44-pricing","title":"Base44 — cennik","url":"https://base44.com/pricing"},
+    {"id":"base44-privacy","title":"Base44 — rezydencja danych i trening modeli","url":"https://docs.base44.com/Community-and-support/Privacy-and-security"},
+    {"id":"bubble-pricing","title":"Bubble — cennik Web","url":"https://bubble.io/pricing"},
+    {"id":"bubble-regions","title":"Bubble — region dedykowanej instancji Enterprise","url":"https://manual.bubble.io/help-guides/bubble-for-enterprise/hosting-and-infrastructure/dedicated-instance"},
+    {"id":"azure-app","title":"Azure — App Service Linux, model opłat","url":"https://azure.microsoft.com/en-us/pricing/details/app-service/linux/"},
+    {"id":"azure-postgres","title":"Azure — PostgreSQL, model opłat","url":"https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/"},
+    {"id":"azure-regions","title":"Azure — lista regionów","url":"https://learn.microsoft.com/en-us/azure/reliability/regions-list"},
+    {"id":"supabase-mfa","title":"Supabase — MFA aplikacji","url":"https://supabase.com/docs/guides/auth/auth-mfa"},
+    {"id":"supabase-rls","title":"Supabase — Row Level Security","url":"https://supabase.com/docs/guides/database/postgres/row-level-security"}
+  ]
+}
