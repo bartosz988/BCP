@@ -476,3 +476,7 @@ dialog[open]{position:absolute;inset:0;width:100%;max-width:100%;max-height:none
 .shell:has(~ dialog[open]){display:none}
 }
 
+/* Poprawki audytu A01 (AUD-011, AUD-018): status „w toku” odróżniony od przyjętego; brak grubości 700 (księga znaku 1.1, s. 19). */
+strong,b{font-weight:600}
+.badge.amber{background:var(--magenta-50);color:var(--magenta-600)}
+.badge.amber .dot{background:var(--magenta-600)}
